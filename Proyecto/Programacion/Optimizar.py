@@ -424,6 +424,38 @@ try:
                 Empresa += lpSum(x_ijk[a][i][j][k] for i in productos[a] for j in df_flete_CV[a].index)  <= b_k[a][k]*1E8
     
     Empresa.solve()
+        
+    variables_normales = []
+    variables_binarias = []
+
+    for variable in Empresa.variables():
+        valor = variable.varValue
+        # Filtrar variables mayores a cero
+        if valor and valor > 0:
+            if variable.cat == "Binary":
+                variables_binarias.append((variable.name, valor))
+            else:
+                variables_normales.append((variable.name, valor))
+
+    # Ruta para guardar el archivo
+    output_path = filedialog.asksaveasfilename(
+        title="Guardar resultados",
+        defaultextension=".txt",
+        filetypes=[("Archivo de texto", "*.txt")]
+    )
+
+    if output_path:
+        with open(output_path, "w") as f:
+            f.write("Variables Normales Mayores a Cero:\n")
+            for name, value in variables_normales:
+                f.write(f"{name}: {value}\n")
+
+            f.write("\nVariables Binarias Mayores a Cero:\n")
+            for name, value in variables_binarias:
+                f.write(f"{name}: {value}\n")
+
+        print(f"Resultados guardados en: {output_path}")
+
 
 except Exception as e:
     error_message = traceback.format_exc()
